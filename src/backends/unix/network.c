@@ -424,6 +424,7 @@ NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 
 		case AF_INET6:
 			/* convert to ipv6 addr */
+			// FIXME: same code as v4 code
 			memset(sadr, 0, sizeof(struct sockaddr_storage));
 			memcpy(sadr, resultp->ai_addr, resultp->ai_addrlen);
 			break;

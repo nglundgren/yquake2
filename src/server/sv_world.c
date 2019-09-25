@@ -643,7 +643,7 @@ SV_ClipMoveToEntities(moveclip_t *clip)
 				clip->trace = trace;
 			}
 		}
-		else if (trace.startsolid)
+		else if (trace.startsolid) // FIXME: this is handled in the if-case?!
 		{
 			clip->trace.startsolid = true;
 		}
