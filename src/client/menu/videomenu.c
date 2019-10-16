@@ -32,7 +32,6 @@
 extern void M_ForceMenuOff(void);
 
 static cvar_t *r_mode;
-static cvar_t *vid_displayindex;
 static cvar_t *r_hudscale;
 static cvar_t *r_consolescale;
 static cvar_t *r_menuscale;
@@ -45,13 +44,14 @@ extern cvar_t *vid_renderer;
 static cvar_t *r_vsync;
 static cvar_t *gl_anisotropic;
 static cvar_t *gl_msaa_samples;
+static cvar_t *gl_texturemode; /*gustavl*/
 
 static menuframework_s s_opengl_menu;
 
 static menulist_s s_renderer_list;
 static menulist_s s_mode_list;
-static menulist_s s_display_list;
 static menulist_s s_uiscale_list;
+static menulist_s s_texturemode_list; /*gustavl*/
 static menuslider_s s_brightness_slider;
 static menuslider_s s_fov_slider;
 static menulist_s s_fs_box;
@@ -60,6 +60,17 @@ static menulist_s s_af_list;
 static menulist_s s_msaa_list;
 static menuaction_s s_defaults_action;
 static menuaction_s s_apply_action;
+
+/*gustavl*/
+static char * tmodes[] = {
+	"GL_NEAREST",
+	"GL_NEAREST_MIPMAP_NEAREST",
+	"GL_NEAREST_MIPMAP_LINEAR",
+	"GL_LINEAR",
+	"GL_LINEAR_MIPMAP_NEAREST",
+	"GL_LINEAR_MIPMAP_LINEAR"
+};
+/*end gustavl*/
 
 static int
 GetRenderer(void)
@@ -192,12 +203,6 @@ ApplyChanges(void *unused)
 		Cvar_SetValue("r_mode", s_mode_list.curvalue);
 	}
 
-	if (s_display_list.curvalue != GLimp_GetWindowDisplayIndex() )
-	{
-		Cvar_SetValue( "vid_displayindex", s_display_list.curvalue );
-		restart = true;
-	}
-
 	/* UI scaling */
 	if (s_uiscale_list.curvalue == 0)
 	{
@@ -243,6 +248,21 @@ ApplyChanges(void *unused)
 		}
 	}
 
+	/* gustavl */
+	/* openGL texture filtering mode*/
+	/* This condition could be set to check if the setting
+	   has actually been changed but I don't know if that
+	   would be better or wqrse for performance. */
+	if (true)
+	{
+		Cvar_Set("gl_texturemode", tmodes[s_texturemode_list.curvalue]);
+
+		/*The below will work as long as the menu item names
+		are identical to the values accepted by the gl_texturemode cvar*/
+		/* Cvar_Set("gl_texturemode", *s_texturemode_list.itemnames[s_texturemode_list.curvalue]); */
+	}
+	/*end gustavl*/
+
 	if (restart)
 	{
 		Cbuf_AddText("vid_restart\n");
@@ -264,7 +284,6 @@ VID_MenuInit(void)
 			0
 	};
 
-	// must be kept in sync with vid_modes[] in vid.c
 	static const char *resolutions[] = {
 		"[320 240   ]",
 		"[400 300   ]",
@@ -337,14 +356,33 @@ VID_MenuInit(void)
 		0
 	};
 
+	/*gustavl*/
+	/*
+	static const char *texturemode_names[] = {
+		"nearest, no mipmaps",
+		"nearest",
+		"nearest, linear mipmaps",
+		"bilinear, no mipmaps",
+		"bilinear",
+		"trilinear",
+		0
+	};
+	*/
+	static const char *texturemode_names[] = {
+		"nearest, no mipmaps",
+		"nearest",
+		"nearest, linear mipmaps",
+		"bilinear, no mipmaps",
+		"bilinear",
+		"trilinear",
+		0
+	};
+
+	/*end gustavl*/
+
 	if (!r_mode)
 	{
 		r_mode = Cvar_Get("r_mode", "4", 0);
-	}
-
-	if (!vid_displayindex)
-	{
-		vid_displayindex = Cvar_Get("vid_displayindex", "0", CVAR_ARCHIVE);
 	}
 
 	if (!r_hudscale)
@@ -397,6 +435,13 @@ VID_MenuInit(void)
 		gl_msaa_samples = Cvar_Get("gl_msaa_samples", "0", CVAR_ARCHIVE);
 	}
 
+	/*gustavl - I'm not sure if this does anything.*/
+	if (!gl_texturemode)
+	{
+		gl_texturemode = Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
+	}
+	/*end gustavl*/
+
 	s_opengl_menu.x = viddef.width * 0.50;
 	s_opengl_menu.nitems = 0;
 
@@ -426,16 +471,6 @@ VID_MenuInit(void)
 	{
 		// 'custom'
 		s_mode_list.curvalue = GetCustomValue(&s_mode_list);
-	}
-
-	if (GLimp_GetNumVideoDisplays() > 1)
-	{
-		s_display_list.generic.type = MTYPE_SPINCONTROL;
-		s_display_list.generic.name = "display index";
-		s_display_list.generic.x = 0;
-		s_display_list.generic.y = (y += 10);
-		s_display_list.itemnames = GLimp_GetDisplayIndices();
-		s_display_list.curvalue = GLimp_GetWindowDisplayIndex();
 	}
 
 	s_brightness_slider.generic.type = MTYPE_SLIDER;
@@ -529,6 +564,23 @@ VID_MenuInit(void)
 		s_msaa_list.curvalue--;
 	}
 
+	/*gustavl*/
+	s_texturemode_list.generic.type = MTYPE_SPINCONTROL;
+	s_texturemode_list.generic.name = "texture filtering";
+	s_texturemode_list.generic.x = 0;
+	s_texturemode_list.generic.y = (y += 10);
+	s_texturemode_list.itemnames = texturemode_names;
+	int j;
+	for (j = 0; texturemode_names[j]; j++)
+	{
+		if (strcmp(gl_texturemode->string, tmodes[j]) == 0)
+		{
+			s_texturemode_list.curvalue = j;
+			break;
+		}
+	}
+	/*end gustavl*/
+
 	s_defaults_action.generic.type = MTYPE_ACTION;
 	s_defaults_action.generic.name = "reset to default";
 	s_defaults_action.generic.x = 0;
@@ -543,13 +595,6 @@ VID_MenuInit(void)
 
 	Menu_AddItem(&s_opengl_menu, (void *)&s_renderer_list);
 	Menu_AddItem(&s_opengl_menu, (void *)&s_mode_list);
-
-	// only show this option if we have multiple displays
-	if (GLimp_GetNumVideoDisplays() > 1)
-	{
-		Menu_AddItem(&s_opengl_menu, (void *)&s_display_list);
-	}
-
 	Menu_AddItem(&s_opengl_menu, (void *)&s_brightness_slider);
 	Menu_AddItem(&s_opengl_menu, (void *)&s_fov_slider);
 	Menu_AddItem(&s_opengl_menu, (void *)&s_uiscale_list);
@@ -557,6 +602,7 @@ VID_MenuInit(void)
 	Menu_AddItem(&s_opengl_menu, (void *)&s_vsync_list);
 	Menu_AddItem(&s_opengl_menu, (void *)&s_af_list);
 	Menu_AddItem(&s_opengl_menu, (void *)&s_msaa_list);
+	Menu_AddItem(&s_opengl_menu, (void *)&s_texturemode_list);/*gustavl*/
 	Menu_AddItem(&s_opengl_menu, (void *)&s_defaults_action);
 	Menu_AddItem(&s_opengl_menu, (void *)&s_apply_action);
 
