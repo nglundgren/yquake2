@@ -1055,6 +1055,7 @@ static menulist_s s_options_alwaysrun_box;
 static menulist_s s_options_invertmouse_box;
 static menulist_s s_options_lookstrafe_box;
 static menulist_s s_options_crosshair_box;
+static menulist_s s_options_statusbar_list; /*gustavl*/
 static menuslider_s s_options_sfxvolume_slider;
 static menuslider_s s_options_haptic_slider;
 static menulist_s s_options_oggshuffle_box;
@@ -1068,6 +1069,214 @@ CrosshairFunc(void *unused)
 {
     Cvar_SetValue("crosshair", (float)s_options_crosshair_box.curvalue);
 }
+
+/*gustavl*/
+static void
+StatusBarFunc(void *unused)
+{
+	/*TODO: deathmatch sbar*/
+	Cvar_SetValue("status_bar", (float)s_options_statusbar_list.curvalue); /*why float?*/
+	int sbar_index = s_options_statusbar_list.curvalue;
+
+	char *sp_statusbar_classic =
+		"yb	-24 "
+
+		/* health */
+		"xv	0 "
+		"hnum "
+		"xv	50 "
+		"pic 0 "
+
+		/* ammo */
+		"if 2 "
+		"	xv	100 "
+		"	anum "
+		"	xv	150 "
+		"	pic 2 "
+		"endif "
+
+		/* armor */
+		"if 4 "
+		"	xv	200 "
+		"	rnum "
+		"	xv	250 "
+		"	pic 4 "
+		"endif "
+
+		/* selected item */
+		"if 6 "
+		"	xv	296 "
+		"	pic 6 "
+		"endif "
+
+		"yb	-50 "
+
+		/* picked up item */
+		"if 7 "
+		"	xv	0 "
+		"	pic 7 "
+		"	xv	26 "
+		"	yb	-42 "
+		"	stat_string 8 "
+		"	yb	-50 "
+		"endif "
+
+		/* timer */
+		"if 9 "
+		"	xv	262 "
+		"	num	2	10 "
+		"	xv	296 "
+		"	pic	9 "
+		"endif "
+
+		/*  help / weapon icon */
+		"if 11 "
+		"	xv	148 "
+		"	pic	11 "
+		"endif "
+		;
+
+	char *sp_statusbar_new1 =
+
+		/* health */
+		"yb	-76 "
+		"xv	-128 "
+		"hnum "
+		"xv	-76 "
+		"pic 0 "
+
+		/* ammo */
+		"if 2 "
+		"	yb -76"
+		"	xv	390 " //390 - 364 = 26
+		"	anum "
+		"	xv	366 "
+		"	pic 2 "
+		"endif "
+
+		/* armor */
+		"if 4 "
+		"	yb -52"
+		"	xv	-104 "
+		"	rnum "
+		"	xv	-52 "
+		"	pic 4 "
+		"endif "
+
+		"yb -76"
+
+		/* selected item */
+		"if 6 "
+		"	xv	338 "
+		"	pic 6 "
+		"endif "
+
+		/* picked up item */
+		"if 7 "
+		"	yb -52 "
+		"	xv	0 "
+		"	pic 7 "
+		"	xv	26 "
+		"	yb -44 "
+		"	stat_string 8 "
+		"endif "
+
+		/* timer */
+		"if 9 "
+		"	yb -52"
+		"	xv	362 "
+		"	num	2	10 "
+		"	xv	314 "
+		"	pic	9 "
+		"endif "
+
+		/*  help / weapon icon */
+		"if 11 "
+		"	yb -76 "
+		"	xv	310 "
+		"	pic	11 "
+		"endif "
+		;
+
+	char *sp_statusbar_new2 =
+
+		/* health */
+		"yb	-76 "
+		"xv	-128 "
+		"hnum "
+		"xv	-76 "
+		"pic 0 "
+
+		/* ammo */
+		"if 2 "
+		"	yb -76"
+		"	xv	390 "
+		"	anum "
+		"	xv	366 "
+		"	pic 2 "
+		"endif "
+
+		/* armor */
+		"if 4 "
+		"	yb -52"
+		"	xv	-104 "
+		"	rnum "
+		"	xv	-52 "
+		"	pic 4 "
+		"endif "
+
+		"yb -52"
+
+		/* selected item */
+		"if 6 "
+		"	xv	342 "
+		"	pic 6 "
+		"endif "
+
+		/* picked up item */
+		"if 7 "
+		"	yb -100 "
+		"	xv	-52 "
+		"	pic 7 "
+		"	xv	-20 "
+		"	yb -92 "
+		"	stat_string 8 "
+		"endif "
+
+		/* timer */
+		"if 9 "
+		"	yb -100"
+		"	xv	268 "
+		"	num	2	10 "
+		"	xv	342 "
+		"	pic	9 "
+		"endif "
+
+		/*  help / weapon icon */
+		"if 11 "
+		"	yb -100 "
+		"	xv	342 "
+		"	pic	11 "
+		"endif "
+		;
+
+	if (Cvar_Get("deathmatch", "0", 0)->value == 0)
+	{
+		if (sbar_index == 0)
+		{
+			strcpy(cl.configstrings[CS_STATUSBAR], sp_statusbar_classic);
+		}
+		else if (sbar_index == 1)
+		{
+			strcpy(cl.configstrings[CS_STATUSBAR], sp_statusbar_new1);
+		}
+		else if (sbar_index == 2)
+		{
+			strcpy(cl.configstrings[CS_STATUSBAR], sp_statusbar_new2);
+		}
+	}
+}
+/*end gustavl*/
 
 static void
 HapticMagnitudeFunc(void *unused)
@@ -1129,6 +1338,7 @@ ControlsSetMenuItemValues(void)
     s_options_lookstrafe_box.curvalue = (lookstrafe->value != 0);
     s_options_freelook_box.curvalue = (freelook->value != 0);
     s_options_crosshair_box.curvalue = ClampCvar(0, 3, crosshair->value);
+	s_options_statusbar_list.curvalue = Cvar_Get("status_bar", "0", 0)->value; /*gustavl*/
     s_options_haptic_slider.curvalue = Cvar_VariableValue("joy_haptic_magnitude") * 10.0F;
 }
 
@@ -1299,6 +1509,16 @@ Options_MenuInit(void)
         0
     };
 
+	/*gustavl*/
+	static const char *statusbar_names[] =
+	{
+		"classic",
+		"new 1",
+		"new 2",
+		0
+	};
+	/*end gustavl*/
+
     float scale = SCR_GetMenuScale();
     extern qboolean show_haptic;
 
@@ -1387,6 +1607,15 @@ Options_MenuInit(void)
     s_options_crosshair_box.generic.callback = CrosshairFunc;
     s_options_crosshair_box.itemnames = crosshair_names;
 
+	/*gustavl*/
+	s_options_statusbar_list.generic.type = MTYPE_SPINCONTROL;
+	s_options_statusbar_list.generic.x = 0;
+	s_options_statusbar_list.generic.y = 130;
+	s_options_statusbar_list.generic.name = "status bar";
+	s_options_statusbar_list.generic.callback = StatusBarFunc;
+	s_options_statusbar_list.itemnames = statusbar_names;
+	/*end gustavl*/
+
     s_options_haptic_slider.generic.type = MTYPE_SLIDER;
     s_options_haptic_slider.generic.x = 0;
     s_options_haptic_slider.generic.y = 120;
@@ -1397,19 +1626,19 @@ Options_MenuInit(void)
 
     s_options_customize_options_action.generic.type = MTYPE_ACTION;
     s_options_customize_options_action.generic.x = 0;
-    s_options_customize_options_action.generic.y = 140;
+    s_options_customize_options_action.generic.y = 150;
     s_options_customize_options_action.generic.name = "customize controls";
     s_options_customize_options_action.generic.callback = CustomizeControlsFunc;
 
     s_options_defaults_action.generic.type = MTYPE_ACTION;
     s_options_defaults_action.generic.x = 0;
-    s_options_defaults_action.generic.y = 150;
+    s_options_defaults_action.generic.y = 160;
     s_options_defaults_action.generic.name = "reset defaults";
     s_options_defaults_action.generic.callback = ControlsResetDefaultsFunc;
 
     s_options_console_action.generic.type = MTYPE_ACTION;
     s_options_console_action.generic.x = 0;
-    s_options_console_action.generic.y = 160;
+    s_options_console_action.generic.y = 170;
     s_options_console_action.generic.name = "go to console";
     s_options_console_action.generic.callback = ConsoleFunc;
 
@@ -1427,6 +1656,7 @@ Options_MenuInit(void)
     Menu_AddItem(&s_options_menu, (void *)&s_options_lookstrafe_box);
     Menu_AddItem(&s_options_menu, (void *)&s_options_freelook_box);
     Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_box);
+	Menu_AddItem(&s_options_menu, (void *)&s_options_statusbar_list); /*gustavl*/
 
     if (show_haptic)
         Menu_AddItem(&s_options_menu, (void *)&s_options_haptic_slider);

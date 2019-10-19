@@ -725,67 +725,128 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 /* =================================================================== */
 
-//char *single_statusbar =
-//"yb	-24 "
-//
-///* health */
-//"xv	0 "
-//"hnum "
-//"xv	50 "
-//"pic 0 "
-//
-///* ammo */
-//"if 2 "
-//"	xv	100 "
-//"	anum "
-//"	xv	150 "
-//"	pic 2 "
-//"endif "
-//
-///* armor */
-//"if 4 "
-//"	xv	200 "
-//"	rnum "
-//"	xv	250 "
-//"	pic 4 "
-//"endif "
-//
-///* selected item */
-//"if 6 "
-//"	xv	296 "
-//"	pic 6 "
-//"endif "
-//
-//"yb	-50 "
-//
-///* picked up item */
-//"if 7 "
-//"	xv	0 "
-//"	pic 7 "
-//"	xv	26 "
-//"	yb	-42 "
-//"	stat_string 8 "
-//"	yb	-50 "
-//"endif "
-//
-///* timer */
-//"if 9 "
-//"	xv	262 "
-//"	num	2	10 "
-//"	xv	296 "
-//"	pic	9 "
-//"endif "
-//
-///*  help / weapon icon */
-//"if 11 "
-//"	xv	148 "
-//"	pic	11 "
-//"endif "
-//;
-
 /*gustavl*/
+char *sp_statusbar_classic =
+	"yb	-24 "
 
-char *single_statusbar =
+/* health */
+	"xv	0 "
+	"hnum "
+	"xv	50 "
+	"pic 0 "
+
+/* ammo */
+	"if 2 "
+	"	xv	100 "
+	"	anum "
+	"	xv	150 "
+	"	pic 2 "
+	"endif "
+
+/* armor */
+	"if 4 "
+	"	xv	200 "
+	"	rnum "
+	"	xv	250 "
+	"	pic 4 "
+	"endif "
+
+/* selected item */
+	"if 6 "
+	"	xv	296 "
+	"	pic 6 "
+	"endif "
+
+	"yb	-50 "
+
+/* picked up item */
+	"if 7 "
+	"	xv	0 "
+	"	pic 7 "
+	"	xv	26 "
+	"	yb	-42 "
+	"	stat_string 8 "
+	"	yb	-50 "
+	"endif "
+
+/* timer */
+	"if 9 "
+	"	xv	262 "
+	"	num	2	10 "
+	"	xv	296 "
+	"	pic	9 "
+	"endif "
+
+/*  help / weapon icon */
+	"if 11 "
+	"	xv	148 "
+	"	pic	11 "
+	"endif "
+	;
+
+char *sp_statusbar_new1 =
+
+/* health */
+"yb	-76 "
+"xv	-128 "
+"hnum "
+"xv	-76 "
+"pic 0 "
+
+/* ammo */
+"if 2 "
+"	yb -76"
+"	xv	390 " //390 - 364 = 26
+"	anum "
+"	xv	366 "
+"	pic 2 "
+"endif "
+
+/* armor */
+"if 4 "
+"	yb -52"
+"	xv	-104 "
+"	rnum "
+"	xv	-52 "
+"	pic 4 "
+"endif "
+
+"yb -76"
+
+/* selected item */
+"if 6 "
+"	xv	338 "
+"	pic 6 "
+"endif "
+
+/* picked up item */
+"if 7 "
+"	yb -52 "
+"	xv	0 "
+"	pic 7 "
+"	xv	26 "
+"	yb -44 "
+"	stat_string 8 "
+"endif "
+
+/* timer */
+"if 9 "
+"	yb -52"
+"	xv	362 "
+"	num	2	10 "
+"	xv	314 "
+"	pic	9 "
+"endif "
+
+/*  help / weapon icon */
+"if 11 "
+"	yb -76 "
+"	xv	310 "
+"	pic	11 "
+"endif "
+;
+
+char *sp_statusbar_new2 =
 
 /* health */
 	"yb	-76 "
@@ -797,7 +858,7 @@ char *single_statusbar =
 /* ammo */
 	"if 2 "
 	"	yb -76"
-	"	xv	390 " //390 - 364 = 26
+	"	xv	390 "
 	"	anum "
 	"	xv	366 "
 	"	pic 2 "
@@ -812,37 +873,37 @@ char *single_statusbar =
 	"	pic 4 "
 	"endif "
 
-	"yb -76"
+	"yb -52"
 
 /* selected item */
 	"if 6 "
-	"	xv	338 "
+	"	xv	342 "
 	"	pic 6 "
 	"endif "
 
 /* picked up item */
 	"if 7 "
-	"	yb -52 "
-	"	xv	0 "
+	"	yb -100 "
+	"	xv	-52 "
 	"	pic 7 "
-	"	xv	26 "
-	"	yb -44 "
+	"	xv	-20 "
+	"	yb -92 "
 	"	stat_string 8 "
 	"endif "
 
 /* timer */
 	"if 9 "
-	"	yb -52"
-	"	xv	362 "
+	"	yb -100"
+	"	xv	268 "
 	"	num	2	10 "
-	"	xv	314 "
+	"	xv	342 "
 	"	pic	9 "
 	"endif "
 
 /*  help / weapon icon */
 	"if 11 "
-	"	yb -76 "
-	"	xv	310 "
+	"	yb -100 "
+	"	xv	342 "
 	"	pic	11 "
 	"endif "
 ;
@@ -995,6 +1056,8 @@ SP_worldspawn(edict_t *ent)
 	gi.configstring(CS_MAXCLIENTS, va("%i", (int)(maxclients->value)));
 
 	/* status bar program */
+	/*gustavl*/
+	/*
 	if (deathmatch->value)
 	{
 		gi.configstring(CS_STATUSBAR, dm_statusbar);
@@ -1003,6 +1066,32 @@ SP_worldspawn(edict_t *ent)
 	{
 		gi.configstring(CS_STATUSBAR, single_statusbar);
 	}
+	*/
+	
+	/*need to figure out how to make this cvar stick between sessions*/
+	int sbar_index = gi.cvar("status_bar", "0", 0)->value;
+
+	if (deathmatch->value)
+	{
+		gi.configstring(CS_STATUSBAR, dm_statusbar);
+	}
+	else
+	{
+		if (sbar_index == 0)
+		{
+			gi.configstring(CS_STATUSBAR, sp_statusbar_classic);
+		}
+		else if (sbar_index == 1)
+		{
+			gi.configstring(CS_STATUSBAR, sp_statusbar_new1);
+		}
+		else if (sbar_index == 2)
+		{
+			gi.configstring(CS_STATUSBAR, sp_statusbar_new2);
+		}
+	}
+
+	/*end gustavl*/
 
 	/* --------------- */
 
