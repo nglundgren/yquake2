@@ -31,6 +31,7 @@ float scr_con_current; /* aproaches scr_conlines at scr_conspeed */
 float scr_conlines; /* 0.0 to 1.0 lines of console to display */
 
 qboolean scr_initialized; /* ready to draw */
+qboolean scr_spawn; /*gustavl*/
 
 int scr_draw_loading;
 
@@ -1383,15 +1384,319 @@ SCR_ExecuteLayoutString(char *s)
 	}
 }
 
+
+/*gustavl*/
 /*
  * The status bar is a small layout program that
  * is based on the stats array
  */
+//void
+//SCR_DrawStats(void)
+//{
+//	SCR_ExecuteLayoutString(cl.configstrings[CS_STATUSBAR]);
+//}
+
+void
+SCR_UpdateStatusBar(void)
+{
+	int sbar_index = Cvar_Get("status_bar", "0", CVAR_ARCHIVE)->value;
+
+	char *sp_statusbar_classic =
+		"yb	-24 "
+
+		/* health */
+		"xv	0 "
+		"hnum "
+		"xv	50 "
+		"pic 0 "
+
+		/* ammo */
+		"if 2 "
+		"	xv	100 "
+		"	anum "
+		"	xv	150 "
+		"	pic 2 "
+		"endif "
+
+		/* armor */
+		"if 4 "
+		"	xv	200 "
+		"	rnum "
+		"	xv	250 "
+		"	pic 4 "
+		"endif "
+
+		/* selected item */
+		"if 6 "
+		"	xv	296 "
+		"	pic 6 "
+		"endif "
+
+		"yb	-50 "
+
+		/* picked up item */
+		"if 7 "
+		"	xv	0 "
+		"	pic 7 "
+		"	xv	26 "
+		"	yb	-42 "
+		"	stat_string 8 "
+		"	yb	-50 "
+		"endif "
+
+		/* timer */
+		"if 9 "
+		"	xv	262 "
+		"	num	2	10 "
+		"	xv	296 "
+		"	pic	9 "
+		"endif "
+
+		/*  help / weapon icon */
+		"if 11 "
+		"	xv	148 "
+		"	pic	11 "
+		"endif "
+		;
+
+	char *sp_statusbar_new1 =
+
+		/* health */
+		"yb	-76 "
+		"xv	-128 "
+		"hnum "
+		"xv	-76 "
+		"pic 0 "
+
+		/* ammo */
+		"if 2 "
+		"	yb -76"
+		"	xv	390 " //390 - 364 = 26
+		"	anum "
+		"	xv	366 "
+		"	pic 2 "
+		"endif "
+
+		/* armor */
+		"if 4 "
+		"	yb -52"
+		"	xv	-104 "
+		"	rnum "
+		"	xv	-52 "
+		"	pic 4 "
+		"endif "
+
+		"yb -76"
+
+		/* selected item */
+		"if 6 "
+		"	xv	338 "
+		"	pic 6 "
+		"endif "
+
+		/* picked up item */
+		"if 7 "
+		"	yb -52 "
+		"	xv	0 "
+		"	pic 7 "
+		"	xv	26 "
+		"	yb -44 "
+		"	stat_string 8 "
+		"endif "
+
+		/* timer */
+		"if 9 "
+		"	yb -52"
+		"	xv	362 "
+		"	num	2	10 "
+		"	xv	314 "
+		"	pic	9 "
+		"endif "
+
+		/*  help / weapon icon */
+		"if 11 "
+		"	yb -76 "
+		"	xv	310 "
+		"	pic	11 "
+		"endif "
+		;
+
+	char *sp_statusbar_new2 =
+
+		/* health */
+		"yb	-76 "
+		"xv	-128 "
+		"hnum "
+		"xv	-76 "
+		"pic 0 "
+
+		/* ammo */
+		"if 2 "
+		"	yb -76"
+		"	xv	390 "
+		"	anum "
+		"	xv	366 "
+		"	pic 2 "
+		"endif "
+
+		/* armor */
+		"if 4 "
+		"	yb -52"
+		"	xv	-104 "
+		"	rnum "
+		"	xv	-52 "
+		"	pic 4 "
+		"endif "
+
+		"yb -52"
+
+		/* selected item */
+		"if 6 "
+		"	xv	342 "
+		"	pic 6 "
+		"endif "
+
+		/* picked up item */
+		"if 7 "
+		"	yb -100 "
+		"	xv	-52 "
+		"	pic 7 "
+		"	xv	-20 "
+		"	yb -92 "
+		"	stat_string 8 "
+		"endif "
+
+		/* timer */
+		"if 9 "
+		"	yb -100"
+		"	xv	268 "
+		"	num	2	10 "
+		"	xv	342 "
+		"	pic	9 "
+		"endif "
+
+		/*  help / weapon icon */
+		"if 11 "
+		"	yb -100 "
+		"	xv	342 "
+		"	pic	11 "
+		"endif "
+		;
+
+	char *dm_statusbar =
+		"yb	-24 "
+
+		/* health */
+		"xv	0 "
+		"hnum "
+		"xv	50 "
+		"pic 0 "
+
+		/* ammo */
+		"if 2 "
+		"	xv	100 "
+		"	anum "
+		"	xv	150 "
+		"	pic 2 "
+		"endif "
+
+		/* armor */
+		"if 4 "
+		"	xv	200 "
+		"	rnum "
+		"	xv	250 "
+		"	pic 4 "
+		"endif "
+
+		/* selected item */
+		"if 6 "
+		"	xv	296 "
+		"	pic 6 "
+		"endif "
+
+		"yb	-50 "
+
+		/* picked up item */
+		"if 7 "
+		"	xv	0 "
+		"	pic 7 "
+		"	xv	26 "
+		"	yb	-42 "
+		"	stat_string 8 "
+		"	yb	-50 "
+		"endif "
+
+		/* timer */
+		"if 9 "
+		"	xv	246 "
+		"	num	2	10 "
+		"	xv	296 "
+		"	pic	9 "
+		"endif "
+
+		/*  help / weapon icon */
+		"if 11 "
+		"	xv	148 "
+		"	pic	11 "
+		"endif "
+
+		/*  frags */
+		"xr	-50 "
+		"yt 2 "
+		"num 3 14 "
+
+		/* spectator */
+		"if 17 "
+		"xv 0 "
+		"yb -58 "
+		"string2 \"SPECTATOR MODE\" "
+		"endif "
+
+		/* chase camera */
+		"if 16 "
+		"xv 0 "
+		"yb -68 "
+		"string \"Chasing\" "
+		"xv 64 "
+		"stat_string 16 "
+		"endif "
+		;
+
+	if (Cvar_Get("deathmatch", "0", 0)->value)
+	{
+		strcpy(cl.configstrings[CS_STATUSBAR], dm_statusbar);
+	}
+	else
+	{
+		if (sbar_index == 0)
+		{
+			strcpy(cl.configstrings[CS_STATUSBAR], sp_statusbar_classic);
+		}
+		else if (sbar_index == 1)
+		{
+			strcpy(cl.configstrings[CS_STATUSBAR], sp_statusbar_new1);
+		}
+		else if (sbar_index == 2)
+		{
+			strcpy(cl.configstrings[CS_STATUSBAR], sp_statusbar_new2);
+		}
+	}
+}
+
 void
 SCR_DrawStats(void)
 {
+
+	if (Cvar_Get("status_bar", "0", CVAR_ARCHIVE)->modified || !scr_spawn) 
+	{
+		SCR_UpdateStatusBar();
+		Cvar_Get("status_bar", "0", CVAR_ARCHIVE)->modified = false;
+		scr_spawn = false;
+	}
 	SCR_ExecuteLayoutString(cl.configstrings[CS_STATUSBAR]);
 }
+
+/*end gustavl*/
 
 #define STAT_LAYOUTS 13
 
